@@ -1,0 +1,45 @@
+TEST 5: SimpleFOC setup with Teensy 4.0 using Salee Logic Analyzer and python script to read from serial
+
+trial 1: simplefoc current control, reading from two pins on teensy with only ADC
+    saw good results, will compare with logic analyzer
+
+trial 2: sampled with both, to compare. 
+    run time: 1.5s
+    Logic analyzer sampling rate: 31.25kS/s
+    ADC: 10000 samples --> 6.666 kS/s
+    SKIP current sense align
+
+    observations:
+    - the signals match well!
+    - there is a small difference in scope vs. the adc output, adc is lower in magnitude
+
+trial 3: try this time without specifying the phase to phase resistance
+    run time: 1.5s
+    Logic analyzer sampling rate: 31.25kS/s
+    ADC: 10000 samples --> 6.666 kS/s
+    SKIP current sense align
+
+
+    observations:
+    - there is still the voltage difference
+    - not specifying phase resistance didn't have meaningful effect
+
+
+trial 4: use the ADC on teensy while turning the motor by hand
+    ADC: 6.666 kSa/s
+    logic analyzer: 31.25kSa/s
+
+    observations:
+    - no voltage difference, higher resolution
+    - does not record negative voltages, there is no offset
+    
+    offsets:
+    ia:0.120253
+    ib:0.122848
+
+trial 5: set the current offsets to zero in simpleFOC and test using both ADC (in simpleFOC mode) and the scope
+    ADC: 6.666 kSa/s
+    logic analyzer: 31.25kSa/s
+
+    observations:
+    - voltages now match!

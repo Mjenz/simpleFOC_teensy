@@ -1,0 +1,181 @@
+TEST 7
+
+Test FOC control on the GL40 motor
+trial1:
+    command: 1.0A
+
+    motor.PID_current_q.P = .2;
+    motor.PID_current_q.I= 300;
+    motor.PID_current_d.P= .2;
+    motor.PID_current_d.I = 300;
+    motor.LPF_current_q.Tf = 0.0001; 
+    motor.LPF_current_d.Tf = 0.0001; 
+
+    observations:
+    - both d and q output is crazy
+
+trial2:
+    command: 0.5A
+    decrease motor p gains
+
+    motor.PID_current_q.P = .02;
+    motor.PID_current_q.I= 300;
+    motor.PID_current_d.P= .02;
+    motor.PID_current_d.I = 300;
+    motor.LPF_current_q.Tf = 0.0001; 
+    motor.LPF_current_d.Tf = 0.0001; 
+
+    observations:
+    - same behavior
+    - need more data
+
+trial3:
+    command: 0.5A
+    try different current sense value get
+        3.0 - current_sense.getFOCCurrents(motor.electricalAngle());
+        3.1 - current_sense.getFOCCurrents(motor.zero_electric_angle);
+    same gains as trial2
+
+    observations:
+    3.0 - no difference
+    3.1 - looks to be some difference - WAHT ELECCTRIC ANGLE TO USE?
+    I looked into the docs - use the motor.electrical_angle. The funciton is to calculate it and the zero_electric_angle is different
+
+trial4:
+    collect current data and do the reverse park and clark transforms and see if you get the same FOC currents outputs
+    manipulate the phases to see if that changes anything?
+
+    motor.PID_current_q.P = .02;
+    motor.PID_current_q.I= 300;
+    motor.PID_current_d.P= .02;
+    motor.PID_current_d.I = 300;
+    motor.LPF_current_q.Tf = 0.0001; 
+    motor.LPF_current_d.Tf = 0.0001; 
+
+    observations:
+    - the foc currents mostly matched what I was seeing before
+    - there is this weird period of constatnt current into the motor, not sure what this means
+    - the motor elecrical angle is maxing at 2pi and then resets to 0
+
+trial5:
+    increase gains again, look at all the different currents
+    command: 0.5A
+
+    motor.PID_current_q.P = .02;
+    motor.PID_current_q.I= 1000;
+    motor.PID_current_d.P= .02;
+    motor.PID_current_d.I = 1000;
+    motor.LPF_current_q.Tf = 0.0001; 
+    motor.LPF_current_d.Tf = 0.0001; 
+
+    current_sense.gain_b = 1/50.0/0.01;
+    current_sense.gain_c = -1/50.0/0.01;
+
+    what am I seeing the expected behavior from?
+    (+) electrical angle
+    (-) phase curents - they should be following the specified FOC current pattern but are not?
+    (-) foc currents - d should be 0 and q should be at the command current but I am seeing neither
+
+trial6:
+    use sinPWM instead of space vector
+    also changed the gains
+    command: 0.5A
+
+    why did this actuall do something!!
+    - I think changes were due to the gain changes not to the sinPWM
+
+    motor.PID_current_q.P = .01;
+    motor.PID_current_q.I= 100;
+    motor.PID_current_d.P= .01;
+    motor.PID_current_d.I = 100;
+    motor.LPF_current_q.Tf = 0.0001; 
+    motor.LPF_current_d.Tf = 0.0001;
+
+    observations:
+    - the q current is close to 0.5A and the d current is noisey but centered at 0
+    - after 200ms the controller becomes unstable and the oscillations that we saw a lot appear again
+    - this behavior is similar to what I saw in trial 4
+    - check if this is due to sinPWM by doing the same gains with space vector, then start editing these gains with this proportion
+
+trial7:
+    same gains as above with space vector PWM commands
+    command: 0.5A
+
+    observations:
+    - the behavior is agnostic of sinPWM or spaceVectorPWM
+    - again, there is a good control period before it becomes unstable
+    - in this 'good' control period there is no change in the electrical angle - is this correct?
+    - the high I control term causes the d current to go to -0.75A instead of staying around 0
+    - there is a lot of noise in the beginning of the data, maybe should increase low pass filtering?
+
+trial8:
+    increase LPF
+    command: 0.5A
+
+    motor.PID_current_q.P = .01;
+    motor.PID_current_q.I= 100;
+    motor.PID_current_d.P= .01;
+    motor.PID_current_d.I = 100;
+    motor.LPF_current_q.Tf = 0.01; 
+    motor.LPF_current_d.Tf = 0.01; 
+
+    observations:
+    - does not seem to have hurt performance, or helped significantly
+
+trial9:
+    decrease I gains
+    command: 0.5A
+
+    motor.PID_current_q.P = .01;
+    motor.PID_current_q.I= 50;
+    motor.PID_current_d.P= .01;
+    motor.PID_current_d.I = 50;
+    motor.LPF_current_q.Tf = 0.01; 
+    motor.LPF_current_d.Tf = 0.01; 
+
+    observations:
+    - it was slow to start moving
+    - I think i need to observe more than the first turn of the motor, maybe capture data after that first trial and see if I ever get that smooth transient
+
+    new theory is that the electrical angle is not changing because the motor is not moving
+    and that the good control response is when the motor is not spinning
+    maybe I should look at data when the motor is being held still?
+
+trial10:
+    10: first spin
+    10.1: second spin
+
+    decrease I gains
+    hold the motor still during test
+    command: -0.75A
+
+    motor.PID_current_q.P = .01;
+    motor.PID_current_q.I= 25;
+    motor.PID_current_d.P= .01;
+    motor.PID_current_d.I = 25;
+    motor.LPF_current_q.Tf = 0.01; 
+    motor.LPF_current_d.Tf = 0.01; 
+
+    observations:
+    - control does work pretty well but there is a ton of noise
+
+trial11:
+    increase I a lot
+    hold the motor still
+    command: 0.1A
+    compare with the output FOC currents to check
+
+    motor.PID_current_q.P = .01;
+    motor.PID_current_q.I= 300;
+    motor.PID_current_d.P= .01;
+    motor.PID_current_d.I = 300;
+    motor.LPF_current_q.Tf = 0.01; 
+    motor.LPF_current_d.Tf = 0.01;
+
+    observaitions:
+    - simpleFOC FOC currents are less noisy because they have low pass filtering
+    - it is pretty tough to tune the controller while it is not on the arm.
+    - now we know that current control works in general
+
+
+

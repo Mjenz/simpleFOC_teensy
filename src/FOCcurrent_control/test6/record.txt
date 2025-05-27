@@ -1,0 +1,120 @@
+TEST 6: Benchmark FOC controller performance, examining how gains effect performance
+
+trial1
+    command: 0.0A --> messed this up, IGNORE THIS TRIAL BAD RESULTS
+    data collected during loop, with serial reading python script
+
+    gains:
+        motor.PID_current_q.P = 1;
+        motor.PID_current_q.I= 0;
+        motor.PID_current_d.P= 1;
+        motor.PID_current_d.I = 0;
+        motor.LPF_current_q.Tf = 0.01; 
+        motor.LPF_current_d.Tf = 0.01; 
+
+    observations:
+    - D_current is well controlled at 0
+    - Q_curretn has a lot of noise
+    - honestly, not even sure i set the current correctly in this test, ignore results
+
+
+trial2
+    command: 1.0A
+    data collected during loop, with serial reading python script
+    change q gain proportional lower
+
+    gains:
+        motor.PID_current_q.P = .5;
+        motor.PID_current_q.I= 0;
+        motor.PID_current_d.P= 1;
+        motor.PID_current_d.I = 0;
+        motor.LPF_current_q.Tf = 0.01; 
+        motor.LPF_current_d.Tf = 0.01; 
+
+    observaitons:
+    - motor did not move
+    - noise hugely increased
+
+trial3
+    command: 1.0A
+    data collected during loop, with serial reading python script
+    change q gain proportional higher
+
+    gains:
+        motor.PID_current_q.P = 2;
+        motor.PID_current_q.I= 0;
+        motor.PID_current_d.P= 1;
+        motor.PID_current_d.I = 0;
+        motor.LPF_current_q.Tf = 0.01; 
+        motor.LPF_current_d.Tf = 0.01; 
+
+    observations:
+    - periodic output on current_q
+    - why do i see this now and not in my first test?
+    - other thing that I changed was calling motor.move(1) every loop, try changing that to only after the print statement (once a run)
+
+trial4: 
+    command: 1.0A
+    same gains as before, just changed code telling motor to move 
+
+    observations:
+    - moving motor.move(1) to the print statement seciton did not change result. still seeing the periodic behavior
+    - maybe my gain is way too high and it is causing this huge sinusoidal behavior?
+    - maybe the sinusoidal output is actually what I am looking for, i need to learn more about FOC
+
+trial5:
+    command: 1.0A
+
+    motor.PID_current_q.P = 5;
+    motor.PID_current_q.I= 300;
+    motor.PID_current_d.P= 5;
+    motor.PID_current_d.I = 300;
+    motor.LPF_current_q.Tf = 0.01; 
+    motor.LPF_current_d.Tf = 0.01; 
+
+    observaitons:
+    - still sinusoidal oscillation of q current but faster
+
+trial 6:
+    command: 1.0A
+    move the motor.move(1) command into main loop
+
+    motor.PID_current_q.P = 2;
+    motor.PID_current_q.I= 0;
+    motor.PID_current_d.P= 1;
+    motor.PID_current_d.I = 0;
+    motor.LPF_current_q.Tf = 0.01; 
+    motor.LPF_current_d.Tf = 0.01; 
+
+    observaitons:
+    - still sinusoidal oscillation of q current
+    - moving the motor.move(1) command did not make any difference
+
+trial 7:
+    decrease low pass filtering
+    command: 1.0A
+
+
+    motor.PID_current_q.P = 2;
+    motor.PID_current_q.I= 0;
+    motor.PID_current_d.P= 1;
+    motor.PID_current_d.I = 0;
+    motor.LPF_current_q.Tf = 0.001; 
+    motor.LPF_current_d.Tf = 0.001; 
+
+    observaitons:
+    - still sinusoidal oscillation of q current
+    - lpf change did not make difference
+
+trial 8:
+    make the i gains much higher than P
+    command: 1.0A
+
+    motor.PID_current_q.P = .1;
+    motor.PID_current_q.I= 50;
+    motor.PID_current_d.P= .1;
+    motor.PID_current_d.I = 50;
+    motor.LPF_current_q.Tf = 0.001; 
+    motor.LPF_current_d.Tf = 0.001; 
+
+    i realized it was not printing the q currents and it thought d was q so all these tests are worthless and no control is working!

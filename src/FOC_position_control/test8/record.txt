@@ -1,0 +1,9 @@
+TEST 8
+Examine the simpleFOC positon controller performance, using the gains and setup that we had in test 7 on the current controller
+
+data:
+    FOC currents from the simpleFOC algorithm
+    position information
+    commanded position
+    commanded current
+    electrical angle
