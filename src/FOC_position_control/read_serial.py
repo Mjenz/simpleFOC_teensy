@@ -29,6 +29,6 @@ while True:
 data = np.array(data)
 
 # Optionally save to CSV
-np.savetxt('src/FOCcurrent_control/test7/trial.csv', data, delimiter=',')
+np.savetxt('src/FOC_position_control/test8/trial.csv', data, delimiter=',')
 
 print(data)

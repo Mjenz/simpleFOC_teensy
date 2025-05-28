@@ -11,9 +11,15 @@ BLDCDriver3PWM driver = BLDCDriver3PWM(4,5,6,3);
 MagneticSensorSPI encoder = MagneticSensorSPI(10, 14);
 
 InlineCurrentSense current_sense  = InlineCurrentSense(.01, 50.0,_NC,22,18); // this is correct setup with c inverted
-float elec_angle[CURRENT_RECORDING_LENGTH];
-PhaseCurrent_s phase_currents[CURRENT_RECORDING_LENGTH];
+// float elec_angle[CURRENT_RECORDING_LENGTH];
+// PhaseCurrent_s phase_currents[CURRENT_RECORDING_LENGTH];
+// float DC_currents[CURRENT_RECORDING_LENGTH];
 DQCurrent_s dq_currents[CURRENT_RECORDING_LENGTH];
+float sp_angle[CURRENT_RECORDING_LENGTH];
+float ang[CURRENT_RECORDING_LENGTH];
+float sp_velocity[CURRENT_RECORDING_LENGTH];
+float vel[CURRENT_RECORDING_LENGTH];
+float sp_cur[CURRENT_RECORDING_LENGTH];
 Commander command = Commander(Serial);
 void doMotor(char* cmd) { command.motor(&motor, cmd); }
 
@@ -46,23 +52,24 @@ void setup() {
 
   // set torque mode:
   motor.torque_controller = TorqueControlType::foc_current; 
-  motor.controller = MotionControlType::torque;
+  motor.controller = MotionControlType::angle;
   motor.foc_modulation = FOCModulationType::SpaceVectorPWM;
 
-  // foc current control parameters (Arduino UNO/Mega)
-  // motor.PID_current_q.P = 5;
-  // motor.PID_current_q.I= 300;
-  // motor.PID_current_d.P= 5;
-  // motor.PID_current_d.I = 300;
-  // motor.LPF_current_q.Tf = 0.01; 
-  // motor.LPF_current_d.Tf = 0.01; 
-
-  motor.PID_current_q.P = .01;
-  motor.PID_current_q.I= 300;
-  motor.PID_current_d.P= .01;
-  motor.PID_current_d.I = 300;
+  motor.PID_current_q.P = 0.05;
+  motor.PID_current_q.I=  10;
+  motor.PID_current_d.P= .05;
+  motor.PID_current_d.I = 10;
   motor.LPF_current_q.Tf = 0.01; 
   motor.LPF_current_d.Tf = 0.01; 
+
+  motor.PID_velocity.P = 1; 
+  motor.PID_velocity.I = 0;
+  motor.PID_velocity.D = 0; 
+  motor.PID_velocity.output_ramp = 1000;
+  motor.LPF_velocity.Tf = 0.01;
+  motor.P_angle.P = 20;
+
+  motor.current_limit = 3;
 
   // use monitoring with serial 
   Serial.begin(921600);
@@ -83,7 +90,7 @@ void setup() {
   if(!motor.initFOC()){
       //while(1){}
   }
-  motor.target = 0.5;
+  motor.target = 3.14;
   command.add('M', doMotor, "Motor");
 
   // Create the initial sin array
@@ -92,32 +99,38 @@ void setup() {
 
 void loop() {
     static int c = 0;
-
+    static float targ = 3.14;
     int start = micros();
-    
+    if (c == CURRENT_RECORDING_LENGTH/2){
+      targ = 0;
+    }
     motor.loopFOC();
-    motor.move(0.5);
+    motor.move(targ);
     // command.run();
-    phase_currents[c] = current_sense.getPhaseCurrents();
-    elec_angle[c] = motor.electrical_angle;
+    // phase_currents[c] = current_sense.getPhaseCurrents();
+    // elec_angle[c] = motor.electrical_angle;
+    // DC_currents[c] = current_sense.getDCCurrent(motor.electrical_angle);
+
     dq_currents[c] = current_sense.getFOCCurrents(motor.electrical_angle);
-    // current_sense.getDQCurrents(motor.electrical_angle)
+    sp_cur[c] = motor.current_sp;
+    sp_angle[c] = motor.shaft_angle_sp;
+    ang[c] = motor.shaft_angle;
+    sp_velocity[c] = motor.shaft_velocity_sp;
+    vel[c] = motor.shaft_velocity;
     c++;    // Increment counter
 
 
     // Check to loop back counter
     if (c >= CURRENT_RECORDING_LENGTH) {
         c = 0;
-        Serial.printf("123412341234,.1,.1,.1,.1,.1,.1\n");
+        Serial.printf("123412341234,.1,.1,.1,.1,.1,.1,.1\n");
 
         for(int i = 0; i < CURRENT_RECORDING_LENGTH; i++){
-
-            Serial.printf("%d,%f,%f,%f,%f,%f,%f\n",i,phase_currents[i].a,phase_currents[i].b,phase_currents[i].c,elec_angle[i],dq_currents[i].d,dq_currents[i].q);
-            // Serial.printf("%d,%f,%f\n",i,dq_currents[i].q,dq_currents[i].d);
+            Serial.printf("%d,%f,%f,%f,%f,%f,%f,%f\n",i,sp_angle[i],ang[i],sp_velocity[i],vel[i],sp_cur[i],dq_currents[i].d,dq_currents[i].q);
         }
         _delay(1);
-        Serial.printf("123412341234,.1,.1,.1,.1,.1,.1\n");
-
+        Serial.printf("123412341234,.1,.1,.1,.1,.1,.1,.1\n");
+        targ  = 3.14;
         _delay(1000);
         
 

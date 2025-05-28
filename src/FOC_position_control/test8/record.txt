@@ -7,3 +7,413 @@ data:
     commanded position
     commanded current
     electrical angle
+
+trial1:
+    try to use FOCcurrent control 
+
+    target1: 3.14 rad
+    target2: 4.14 rad
+
+    motor.torque_controller = TorqueControlType::foc_current; 
+    motor.controller = MotionControlType::angle;
+    motor.foc_modulation = FOCModulationType::SpaceVectorPWM;
+
+    motor.PID_current_q.P = .01;
+    motor.PID_current_q.I= 300;
+    motor.PID_current_d.P= .01;
+    motor.PID_current_d.I = 300;
+    motor.LPF_current_q.Tf = 0.01; 
+    motor.LPF_current_d.Tf = 0.01; 
+
+    motor.PID_velocity.P = 0.5; 
+    motor.PID_velocity.I = 20;
+    motor.PID_velocity.D = 0.001; 
+    motor.PID_velocity.output_ramp = 1000;
+    motor.LPF_velocity.Tf = 0.01;
+    motor.P_angle.P = 20;
+
+    observations:
+    - lots of oscillations
+    - the current control level looks like it is not using FOC control
+    - we need the DC currents to see if it is controlling that instead
+    
+trial2:
+    look at DC currents to see if that is what is being controlled
+    same gains and goal as above
+
+    observations:
+    - same oscillations
+    - DC current looks more similar to the command, which is a square wave oscillating between -2 and 2A. 
+    - looks like DC is the one being controlled, but can't be square
+
+trial3:
+    lower current I gains, see if that changes behavior
+
+    motor.PID_current_q.P = .01;
+    motor.PID_current_q.I= 50;
+    motor.PID_current_d.P= .01;
+    motor.PID_current_d.I = 50;
+    motor.LPF_current_q.Tf = 0.01; 
+    motor.LPF_current_d.Tf = 0.01; 
+
+    motor.PID_velocity.P = 0.5; 
+    motor.PID_velocity.I = 20;
+    motor.PID_velocity.D = 0.001; 
+    motor.PID_velocity.output_ramp = 1000;
+    motor.LPF_velocity.Tf = 0.01;
+    motor.P_angle.P = 20;
+
+    obsevations:
+    - changing the foc current controlls changed performance! I think that it is using foc current control
+    - there oscillation in the position controller and delay in the velocity controller
+
+trial4:
+    change velocity and position gains
+
+    motor.PID_current_q.P = .01;
+    motor.PID_current_q.I= 50;
+    motor.PID_current_d.P= .01;
+    motor.PID_current_d.I = 50;
+    motor.LPF_current_q.Tf = 0.01; 
+    motor.LPF_current_d.Tf = 0.01; 
+
+    motor.PID_velocity.P = 0.1; 
+    motor.PID_velocity.I = 20;
+    motor.PID_velocity.D = 0.001; 
+    motor.PID_velocity.output_ramp = 1000;
+    motor.LPF_velocity.Tf = 0.01;
+    motor.P_angle.P = 5;
+
+    observations:
+    - less oscillations
+    - larger delay in velocity
+
+trial5:
+    decrease position more
+    increase velocity gains
+
+    motor.PID_current_q.P = .01;
+    motor.PID_current_q.I= 50;
+    motor.PID_current_d.P= .01;
+    motor.PID_current_d.I = 50;
+    motor.LPF_current_q.Tf = 0.01; 
+    motor.LPF_current_d.Tf = 0.01; 
+
+    motor.PID_velocity.P = 2; 
+    motor.PID_velocity.I = 40;
+    motor.PID_velocity.D = 0.001; 
+    motor.PID_velocity.output_ramp = 1000;
+    motor.LPF_velocity.Tf = 0.01;
+    motor.P_angle.P = 2.5;
+
+    observations:
+    - I have been stupid, the output velocity is way higher than it should be, decrease p and i velocity
+
+trial6:
+    decrease velocity gains
+
+    motor.PID_current_q.P = .01;
+    motor.PID_current_q.I= 50;
+    motor.PID_current_d.P= .01;
+    motor.PID_current_d.I = 50;
+    motor.LPF_current_q.Tf = 0.01; 
+    motor.LPF_current_d.Tf = 0.01; 
+
+    motor.PID_velocity.P = 0.1; 
+    motor.PID_velocity.I = 5;
+    motor.PID_velocity.D = 0.001; 
+    motor.PID_velocity.output_ramp = 1000;
+    motor.LPF_velocity.Tf = 0.01;
+    motor.P_angle.P = 2.5;
+
+    observations:
+    position is okay, but the velocity is still overshooting
+
+trial7:
+    decrease velocity gains further
+    eliminate D
+
+    motor.PID_current_q.P = .01;
+    motor.PID_current_q.I= 50;
+    motor.PID_current_d.P= .01;
+    motor.PID_current_d.I = 50;
+    motor.LPF_current_q.Tf = 0.01; 
+    motor.LPF_current_d.Tf = 0.01; 
+
+    motor.PID_velocity.P = 0.01; 
+    motor.PID_velocity.I = 5;
+    motor.PID_velocity.D = 0.0; 
+    motor.PID_velocity.output_ramp = 1000;
+    motor.LPF_velocity.Tf = 0.01;
+    motor.P_angle.P = 2.5;
+
+    observations:
+    - huge oscillations in the angle, either caused by eliminating the d or decreasing the proprotional velocity gains
+
+trial8:
+    same gains but re-instate the d gain
+
+    motor.PID_current_q.P = .01;
+    motor.PID_current_q.I= 50;
+    motor.PID_current_d.P= .01;
+    motor.PID_current_d.I = 50;
+    motor.LPF_current_q.Tf = 0.01; 
+    motor.LPF_current_d.Tf = 0.01; 
+
+    motor.PID_velocity.P = 0.01; 
+    motor.PID_velocity.I = 5;
+    motor.PID_velocity.D = 0.001; 
+    motor.PID_velocity.output_ramp = 1000;
+    motor.LPF_velocity.Tf = 0.01;
+    motor.P_angle.P = 2.5;
+
+    observations:
+    - much better with the d, still overshooting in the velocity
+
+trial9:
+    i disabled all the d controls
+
+    motor.PID_current_q.P = 2;
+    motor.PID_current_q.I= 10;
+    motor.PID_current_d.P= .01;
+    // motor.PID_current_d.I = 300;
+    // motor.LPF_current_q.Tf = 0.01; 
+    // motor.LPF_current_d.Tf = 0.01; 
+
+    motor.PID_velocity.P = 1; 
+    motor.PID_velocity.I = 0;
+    motor.PID_velocity.D = 0; 
+    motor.PID_velocity.output_ramp = 1000;
+    motor.LPF_velocity.Tf = 0.01;
+    motor.P_angle.P = 20;
+
+    observations:
+    - i don't know what to think
+    - based on what im seeing in the code, i think it sets the current set point correclty
+    
+    relevant note in library code for angle control
+
+    // TODO sensor precision: this calculation is not numerically precise. The target value cannot express precise positions when
+    //                        the angles are large. This results in not being able to command small changes at high position values.
+    //                        to solve this, the delta-angle has to be calculated in a numerically precise way.
+
+trial10:
+    start tuning the controller from bottom up
+
+    motor.PID_current_q.P = 0.01;
+    motor.PID_current_q.I=  300;
+    motor.PID_current_d.P= .01;
+    motor.PID_current_d.I = 300;
+    motor.LPF_current_q.Tf = 0.01; 
+    motor.LPF_current_d.Tf = 0.01; 
+
+    motor.PID_velocity.P = 1; 
+    motor.PID_velocity.I = 0;
+    motor.PID_velocity.D = 0; 
+    motor.PID_velocity.output_ramp = 1000;
+    motor.LPF_velocity.Tf = 0.01;
+    motor.P_angle.P = 1;
+
+    observations:
+    - the angle gain needs to be higher for it to be a step input into the current controller
+    - Crazy oscillations --> the current control gains are too high
+
+trial11:
+    decrease I gain for current
+    increase P gain for position
+
+    motor.PID_current_q.P = 0.01;
+    motor.PID_current_q.I=  50;
+    motor.PID_current_d.P= .01;
+    motor.PID_current_d.I = 50;
+    motor.LPF_current_q.Tf = 0.01; 
+    motor.LPF_current_d.Tf = 0.01; 
+
+    motor.PID_velocity.P = 1; 
+    motor.PID_velocity.I = 0;
+    motor.PID_velocity.D = 0; 
+    motor.PID_velocity.output_ramp = 1000;
+    motor.LPF_velocity.Tf = 0.01;
+    motor.P_angle.P = 20;
+
+    observations:
+    - much better input to the lower level controllers with the high postion gain
+    - seeing the current controller go in the opposite direction of the commanded current, confused why that is
+    - perhaps decreasing p gains in current controller will help
+    error calculation in library:
+    voltage.q = PID_current_q(current_sp - current.q);
+    voltage.d = PID_current_d(-current.d);
+
+trial12:
+    decrease P gain in current control
+
+    motor.PID_current_q.P = 0.001;
+    motor.PID_current_q.I=  50;
+    motor.PID_current_d.P= .001;
+    motor.PID_current_d.I = 50;
+    motor.LPF_current_q.Tf = 0.01; 
+    motor.LPF_current_d.Tf = 0.01; 
+
+    motor.PID_velocity.P = 1; 
+    motor.PID_velocity.I = 0;
+    motor.PID_velocity.D = 0; 
+    motor.PID_velocity.output_ramp = 1000;
+    motor.LPF_velocity.Tf = 0.01;
+    motor.P_angle.P = 20;
+
+    observations:
+    - seeing some convergence, so improvement, but still unstable
+    - decrease I, see how that helps
+
+trial13:
+    decrease I in current control
+
+    motor.PID_current_q.P = 0.001;
+    motor.PID_current_q.I=  1;
+    motor.PID_current_d.P= .001;
+    motor.PID_current_d.I = 1;
+    motor.LPF_current_q.Tf = 0.01; 
+    motor.LPF_current_d.Tf = 0.01; 
+
+    motor.PID_velocity.P = 1; 
+    motor.PID_velocity.I = 0;
+    motor.PID_velocity.D = 0; 
+    motor.PID_velocity.output_ramp = 1000;
+    motor.LPF_velocity.Tf = 0.01;
+    motor.P_angle.P = 20;
+
+    observations:
+    - terrible performance, I is critical
+    - restore I value to 50, further decrease P gain in curretn controller
+
+trial14:
+    further decrease P gain in curretn controller
+
+    motor.PID_current_q.P = 0.0001;
+    motor.PID_current_q.I=  50;
+    motor.PID_current_d.P= .0001;
+    motor.PID_current_d.I = 50;
+    motor.LPF_current_q.Tf = 0.01; 
+    motor.LPF_current_d.Tf = 0.01; 
+
+    motor.PID_velocity.P = 1; 
+    motor.PID_velocity.I = 0;
+    motor.PID_velocity.D = 0; 
+    motor.PID_velocity.output_ramp = 1000;
+    motor.LPF_velocity.Tf = 0.01;
+    motor.P_angle.P = 20;
+
+    observations:
+    - very similar to trial 12, makes me think that decreasing the P gain is doing nothing.
+    - increase P gain, decrease I gain a little
+
+trial15:
+    increase P gain, decrease I gain a little   
+
+    motor.PID_current_q.P = 0.01;
+    motor.PID_current_q.I=  25;
+    motor.PID_current_d.P= .01;
+    motor.PID_current_d.I = 25;
+    motor.LPF_current_q.Tf = 0.01; 
+    motor.LPF_current_d.Tf = 0.01; 
+
+    motor.PID_velocity.P = 1; 
+    motor.PID_velocity.I = 0;
+    motor.PID_velocity.D = 0; 
+    motor.PID_velocity.output_ramp = 1000;
+    motor.LPF_velocity.Tf = 0.01;
+    motor.P_angle.P = 20;
+
+    observations:
+    - more stable behavior, decrease I again a little
+
+trial16:
+    continue to decreaese I current gain
+
+    motor.PID_current_q.P = 0.01;
+    motor.PID_current_q.I=  10;
+    motor.PID_current_d.P= .01;
+    motor.PID_current_d.I = 10;
+    motor.LPF_current_q.Tf = 0.01; 
+    motor.LPF_current_d.Tf = 0.01; 
+
+    motor.PID_velocity.P = 1; 
+    motor.PID_velocity.I = 0;
+    motor.PID_velocity.D = 0; 
+    motor.PID_velocity.output_ramp = 1000;
+    motor.LPF_velocity.Tf = 0.01;
+    motor.P_angle.P = 20;
+
+    observations:
+    - same as last time: more stable behavior, decrease I again a little
+
+trial17:
+    decrease I again a little
+
+    motor.PID_current_q.P = 0.01;
+    motor.PID_current_q.I=  5;
+    motor.PID_current_d.P= .01;
+    motor.PID_current_d.I = 5;
+    motor.LPF_current_q.Tf = 0.01; 
+    motor.LPF_current_d.Tf = 0.01; 
+
+    motor.PID_velocity.P = 1; 
+    motor.PID_velocity.I = 0;
+    motor.PID_velocity.D = 0; 
+    motor.PID_velocity.output_ramp = 1000;
+    motor.LPF_velocity.Tf = 0.01;
+    motor.P_angle.P = 20;
+ 
+    observations:
+    - less stable behavior, now controller is too weak. make I back to 10. increase P a little?
+    - also, just realizing that there is a cap on the current output of the system at 2A. We should be able to change that.
+
+
+trial18:
+    reinstate I to 10
+    increase P a little
+    increase current limit to 3
+
+    motor.PID_current_q.P = 0.025;
+    motor.PID_current_q.I=  10;
+    motor.PID_current_d.P= .025;
+    motor.PID_current_d.I = 10;
+    motor.LPF_current_q.Tf = 0.01; 
+    motor.LPF_current_d.Tf = 0.01; 
+
+    motor.PID_velocity.P = 1; 
+    motor.PID_velocity.I = 0;
+    motor.PID_velocity.D = 0; 
+    motor.PID_velocity.output_ramp = 1000;
+    motor.LPF_velocity.Tf = 0.01;
+    motor.P_angle.P = 20;
+
+    motor.current_limit = 3;
+
+    observations:
+    - more stable, current limit change worked
+    - probably could increase P more to get better performance
+
+trial19:
+    increase current P gain more
+
+    motor.PID_current_q.P = 0.05;
+    motor.PID_current_q.I=  10;
+    motor.PID_current_d.P= .05;
+    motor.PID_current_d.I = 10;
+    motor.LPF_current_q.Tf = 0.01; 
+    motor.LPF_current_d.Tf = 0.01; 
+
+    motor.PID_velocity.P = 1; 
+    motor.PID_velocity.I = 0;
+    motor.PID_velocity.D = 0; 
+    motor.PID_velocity.output_ramp = 1000;
+    motor.LPF_velocity.Tf = 0.01;
+    motor.P_angle.P = 20;
+
+    observations:
+    - good enough performance for now, I need to work on other stuff and all these gains will change later when I put the arm on it
+
+CONCLUSIONS:
+1. the simpleFOC library angle controller can use FOC current control
+2. the motors low resistance, lower than advised by simpleFOC, is likely making tuning the controller difficult. In general high I gain and low P gains work
