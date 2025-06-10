@@ -24,7 +24,7 @@ channel_2_a = analog_data[:, 2]    # Voltage from channel 2# Plotting
 # plt.show()
 
 # Load data, skipping the header
-data = np.genfromtxt('src/FOCcurrent_control/test7/trial.csv', delimiter=',', skip_header=1, dtype=float)
+data = np.genfromtxt('src/FOCcurrent_control/test9/trial.csv', delimiter=',', skip_header=1, dtype=float)
 
 # Extract columns
 # timestamp = data[:, 0]        # Timestamp

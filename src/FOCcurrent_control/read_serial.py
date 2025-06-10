@@ -27,8 +27,8 @@ while True:
 
 # Convert to NumPy array
 data = np.array(data)
-
+    
 # Optionally save to CSV
-np.savetxt('src/FOCcurrent_control/test7/trial.csv', data, delimiter=',')
+np.savetxt('src/FOCcurrent_control/test9/trial.csv', data, delimiter=',')
 
 print(data)

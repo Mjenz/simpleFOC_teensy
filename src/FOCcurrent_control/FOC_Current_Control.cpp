@@ -10,7 +10,7 @@
 // // MagneticSensorSPI(int cs, float _cpr, int _angle_register)
 // MagneticSensorSPI encoder = MagneticSensorSPI(10, 14);
 
-// InlineCurrentSense current_sense  = InlineCurrentSense(.01, 50.0,_NC,22,18); // this is correct setup with c inverted
+// InlineCurrentSense current_sense  = InlineCurrentSense(.01, 50.0,_NC,22,17); // this is correct setup with c inverted
 // float elec_angle[CURRENT_RECORDING_LENGTH];
 // PhaseCurrent_s phase_currents[CURRENT_RECORDING_LENGTH];
 // DQCurrent_s dq_currents[CURRENT_RECORDING_LENGTH];
@@ -46,15 +46,23 @@
 
 //   // set torque mode:
 //   motor.torque_controller = TorqueControlType::foc_current; 
-//   motor.controller = MotionControlType::angle;
+//   motor.controller = MotionControlType::torque;
 //   motor.foc_modulation = FOCModulationType::SpaceVectorPWM;
 
-//   motor.PID_current_q.P = .01;
+// //   motor.PID_current_q.P = .01;
+// //   motor.PID_current_q.I= 300;
+// //   motor.PID_current_d.P= .01;
+// //   motor.PID_current_d.I = 300;
+// //   motor.LPF_current_q.Tf = 0.01; 
+// //   motor.LPF_current_d.Tf = 0.01; 
+
+//     motor.PID_current_q.P = .01;
 //   motor.PID_current_q.I= 300;
 //   motor.PID_current_d.P= .01;
 //   motor.PID_current_d.I = 300;
 //   motor.LPF_current_q.Tf = 0.01; 
 //   motor.LPF_current_d.Tf = 0.01; 
+
 
 //   // use monitoring with serial 
 //   Serial.begin(921600);

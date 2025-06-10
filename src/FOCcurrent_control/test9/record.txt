@@ -1,0 +1,25 @@
+Test to re-analyze the FOC currents while I am holding the motor still
+
+
+trial1:
+    command: 0.5A
+    
+    motor.PID_current_q.P = .01;
+    motor.PID_current_q.I= 50;
+    motor.PID_current_d.P= .01;
+    motor.PID_current_d.I = 50;
+    motor.LPF_current_q.Tf = 0.01; 
+    motor.LPF_current_d.Tf = 0.01; 
+
+    observations:
+    - i could not stop it from spinning, when I did, then there would be no torque. it was like the poles were misaligned or something
+
+trial2:
+    try lowering the q gain
+    
+    motor.PID_current_q.P = .01;
+    motor.PID_current_q.I= 50;
+    motor.PID_current_d.P= .01;
+    motor.PID_current_d.I = 300;
+    motor.LPF_current_q.Tf = 0.01; 
+    motor.LPF_current_d.Tf = 0.01; 

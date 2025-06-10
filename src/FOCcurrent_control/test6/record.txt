@@ -1,5 +1,5 @@
 TEST 6: Benchmark FOC controller performance, examining how gains effect performance
-
+IGNORE ALL TEHSE RESULTS
 trial1
     command: 0.0A --> messed this up, IGNORE THIS TRIAL BAD RESULTS
     data collected during loop, with serial reading python script
