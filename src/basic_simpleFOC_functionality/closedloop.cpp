@@ -1,12 +1,13 @@
 // #include <SimpleFOC.h>
 
-// // motor instance
-// BLDCMotor motor = BLDCMotor(14,3);
-// BLDCDriver3PWM driver = BLDCDriver3PWM(0,1,2,3);
-// MagneticSensorSPI encoder = MagneticSensorSPI(17, 14);
-// // channel A and B callbacks
-// // void doA(){encoder.handleA();}
-// // void doB(){encoder.handleB();}
+// #include <SimpleFOC.h>
+
+// BLDCMotor motor = BLDCMotor(14,4.5);
+// // BLDCDriver3PWM(pwmA, pwmB, pwmC, Enable(optional));
+// BLDCDriver3PWM driver = BLDCDriver3PWM(4,5,6,3);
+// // MagneticSensorSPI(int cs, float _cpr, int _angle_register)
+// MagneticSensorSPI encoder = MagneticSensorSPI(10, 14);
+
 
 // void setup() {
   
@@ -48,7 +49,9 @@
 //   // default 20
 //   motor.velocity_limit = 4;
 //   // default voltage_power_supply
-//   motor.voltage_limit = 10;
+// //   motor.voltage_limit = 16;
+
+//   motor.voltage_sensor_align = 10;
 
 //   // use monitoring with serial 
 //   Serial.begin(115200);
