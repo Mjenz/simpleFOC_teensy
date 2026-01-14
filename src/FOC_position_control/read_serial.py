@@ -2,7 +2,7 @@ import serial
 import numpy as np
 
 # Open serial port (make sure this matches your device)
-s = serial.Serial('/dev/tty.usbmodem115740101', baudrate=921600, timeout=1)
+s = serial.Serial('/dev/serial/by-id/usb-Teensyduino_USB_Serial_11574010-if00', baudrate=921600, timeout=1)
 
 data = []
 
@@ -15,7 +15,7 @@ while True:
             numbers = list(map(float, split))  # convert each item to float
             data.append(numbers)
             print(numbers)
-            if len(data) > 21000:
+            if len(data) > 5000:
                 break
     except ValueError:
         # Handles cases where conversion to float fails
@@ -29,6 +29,6 @@ while True:
 data = np.array(data)
 
 # Optionally save to CSV
-np.savetxt('src/FOC_position_control/test8/trial.csv', data, delimiter=',')
+np.savetxt('src/FOC_position_control/test11/trial.csv', data, delimiter=',')
 
 print(data)
