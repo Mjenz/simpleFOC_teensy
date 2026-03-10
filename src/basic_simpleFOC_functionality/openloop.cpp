@@ -2,9 +2,9 @@
 
 
 
-// BLDCMotor motor = BLDCMotor(14,4.5);
+// BLDCMotor motor = BLDCMotor(14,2.3);
 // // BLDCDriver3PWM(pwmA, pwmB, pwmC, Enable(optional));
-// BLDCDriver3PWM driver = BLDCDriver3PWM(4,5,6,3);
+// BLDCDriver3PWM driver = BLDCDriver3PWM(6,5,4,3);
 // // MagneticSensorSPI(int cs, float _cpr, int _angle_register)
 
 // // instantiate the commander
@@ -22,7 +22,7 @@
 
 //   // driver config
 //   // power supply voltage [V]
-//   driver.voltage_power_supply = 12;
+//   driver.voltage_power_supply = 16;
 //   // limit the maximal dc voltage the driver can set
 //   // as a protection measure for the low-resistance motors
 //   // this value is fixed on startup
