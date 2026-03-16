@@ -18,12 +18,12 @@ TeensyTimerTool::PeriodicTimer position_control_timer_(TeensyTimerTool::TCK);
 TeensyTimerTool::PeriodicTimer print_timer_(TeensyTimerTool::TCK);
 
 // init global vars
-auto count = 0;
-double target;
-auto target_angle = 0.0;
-auto next_angle = 0.0;
-auto system_angle = 0.0;
-auto system_vel = 0.0;
+volatile auto count = 0;
+volatile double target;
+volatile auto target_angle = 0.0;
+volatile auto next_angle = 0.0;
+volatile auto system_angle = 0.0;
+volatile auto system_vel = 0.0;
 auto offset = 1.75;
 std::vector<float> trajectory;
 char msg[100];
@@ -110,12 +110,12 @@ void setup() {
   SimpleFOCDebug::enable(&Serial);
 
   // initialize motor
-  motor.voltage_sensor_align = 8.0;
+  // motor.voltage_sensor_align = 3.0;
   motor.init();
 
   // set offsets
-  // motor.sensor_direction = Direction::CW;
-  // motor.zero_electric_angle = 2.0;
+  motor.sensor_direction = Direction::CW;
+  motor.zero_electric_angle = 0.3;
 
   // align sensor and start FOC
   if(!motor.initFOC()){
@@ -130,7 +130,7 @@ void setup() {
   std::copy(trajectory_traj_11.begin(), trajectory_traj_11.end(), std::back_inserter(trajectory));
 
   // enable ffwd
-  p_controller_.set_ffwd_control(true);
+  // p_controller_.set_ffwd_control(true);
 
   // wait 1 second
   delay(1000);
