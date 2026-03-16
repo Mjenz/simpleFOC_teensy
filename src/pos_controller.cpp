@@ -35,7 +35,7 @@ void PositionController::set_u_clamp_val(double clamp_val)
 double PositionController::pump_controller(double setpoint, double actual, float shaft_vel)
 {
     // calculate error
-    err_ = -(setpoint - actual); // for some reason is negative with simplefoc
+    err_ = (setpoint - actual);
 
     if (gvty_fwd_enable_) {gvty_term_ = -std::sin(actual);}
     if (Ki_ != 0.0) {err_int_ += err_;}

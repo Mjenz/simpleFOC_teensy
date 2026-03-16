@@ -40,7 +40,7 @@ void command_update_loop()
 
   // pump position controller
   target_angle = trajectory.at(count);
-  system_angle =  encoder.getAngle()-offset;
+  system_angle =  encoder.getAngle() - offset;
   system_vel =  encoder.getVelocity();
 
   count++;
@@ -114,8 +114,8 @@ void setup() {
   motor.init();
 
   // set offsets
-  motor.sensor_direction = Direction::CCW;
-  motor.zero_electric_angle = 2.0;
+  // motor.sensor_direction = Direction::CW;
+  // motor.zero_electric_angle = 2.0;
 
   // align sensor and start FOC
   if(!motor.initFOC()){
