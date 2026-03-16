@@ -9,7 +9,8 @@ BLDCDriver3PWM driver = BLDCDriver3PWM(4,5,6,3); // pwmA, pwmB, pwmC, Enable(opt
 MagneticSensorSPI encoder = MagneticSensorSPI(10, 14); // int cs, float _cpr
 InlineCurrentSense current_sense  = InlineCurrentSense(.006, 50.0,_NC,22,17); // this is correct setup with c inverted
 
-PositionController p_controller_{20.0, 0.0, 0.0, 12.0};
+PositionController p_controller_{1.0, 0.0, 0.0, 0.0};
+// PositionController p_controller_{20.0, 0.0, 0.0, 12.0};
 // PositionController p_controller_{0.0, 0.0, 0.0, 12.0};
 
 TeensyTimerTool::PeriodicTimer command_update_timer_(TeensyTimerTool::TCK);
