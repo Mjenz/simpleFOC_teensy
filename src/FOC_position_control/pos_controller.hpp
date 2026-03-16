@@ -57,10 +57,10 @@ private:
   double i_clamp_val_;
   /// \brief Command clamping value
   double u_clamp_val_;
-  /// \brief Boolean enabling feed forward control
-  bool feed_fwd_enable_;
-  /// \brief Feed forward compensation term
-  double ffwd_term_;
+  /// \brief Boolean enabling gravity compensation control
+  bool gvty_fwd_enable_;
+  /// \brief Gravity compensation term
+  double gvty_term_;
 };
 
 #endif

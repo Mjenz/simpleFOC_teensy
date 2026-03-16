@@ -9,17 +9,17 @@ PositionController::PositionController(double Kp, double Ki, double Kd, double K
   err_int_ (0.0),
   err_der_ (0.0),
   err_prev_ (0.0),
-  i_clamp_val_ (5.0),
+  i_clamp_val_ (10.0),
   u_clamp_val_ (1000.0),
-  feed_fwd_enable_ (false),
-  ffwd_term_ (0.0)
+  gvty_fwd_enable_ (false),
+  gvty_term_ (0.0)
 {
     Serial.println("Initializing PID position controller...");
 }
 
 void PositionController::set_ffwd_control(bool enable)
 {
-    feed_fwd_enable_ = enable;
+    gvty_fwd_enable_ = enable;
 }
 
 void PositionController::set_i_clamp_val(double clamp_val)
@@ -35,10 +35,12 @@ void PositionController::set_u_clamp_val(double clamp_val)
 double PositionController::pump_controller(double setpoint, double actual, float shaft_vel)
 {
     // calculate error
-    err_ = setpoint - actual; // something about this setup is highly unstable for simplefoc
-    // if (feed_fwd_enable_) {ffwd_term_ = next_cmd;}
+    err_ = -(setpoint - actual); // for some reason is negative with simplefoc
+
+    if (gvty_fwd_enable_) {gvty_term_ = -std::sin(actual);}
     if (Ki_ != 0.0) {err_int_ += err_;}
     if (Kd_ != 0.0) { err_der_ = -(shaft_vel);} 
+    
     err_prev_ = err_;
 
     // clamp err_int
@@ -66,5 +68,5 @@ double PositionController::pump_controller(double setpoint, double actual, float
         u = -u_clamp_val_;
     }
 
-    return u + + Kff_ * ffwd_term_;
+    return u + Kff_ * gvty_term_;
 }

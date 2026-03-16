@@ -3,14 +3,16 @@
 #include <TeensyTimerTool.h>
 #include "pos_controller.hpp"
 #include "steps.hpp"
-
+#include "swing_traj_11.hpp"
 BLDCMotor motor = BLDCMotor(14,2.3); // pole pairs, phase resistance
 BLDCDriver3PWM driver = BLDCDriver3PWM(4,5,6,3); // pwmA, pwmB, pwmC, Enable(optional)
 MagneticSensorSPI encoder = MagneticSensorSPI(10, 14); // int cs, float _cpr
 InlineCurrentSense current_sense  = InlineCurrentSense(.006, 50.0,_NC,22,17); // this is correct setup with c inverted
 
-PositionController p_controller_{0.05, 0.0, 0.0, 0.0};
+PositionController p_controller_{20.0, 0.0, 0.0, 12.0};
+// PositionController p_controller_{0.0, 0.0, 0.0, 12.0};
 
+TeensyTimerTool::PeriodicTimer command_update_timer_(TeensyTimerTool::TCK);
 TeensyTimerTool::PeriodicTimer position_control_timer_(TeensyTimerTool::TCK);
 TeensyTimerTool::PeriodicTimer print_timer_(TeensyTimerTool::TCK);
 
@@ -21,14 +23,14 @@ auto target_angle = 0.0;
 auto next_angle = 0.0;
 auto system_angle = 0.0;
 auto system_vel = 0.0;
+auto offset = 1.75;
 std::vector<float> trajectory;
 char msg[100];
 
-void trajectory_control_loop()
+void command_update_loop()
 {
 
   // main FOC algorithm function
-  motor.loopFOC();
 
   if (count > int(trajectory.size())-1)
   {
@@ -37,14 +39,15 @@ void trajectory_control_loop()
 
   // pump position controller
   target_angle = trajectory.at(count);
-  system_angle =  encoder.getAngle();
+  system_angle =  encoder.getAngle()-offset;
   system_vel =  encoder.getVelocity();
-  target = p_controller_.pump_controller(target_angle, system_angle, system_vel);
-
-  // Motion control function
-  motor.move(target);
 
   count++;
+}
+
+void position_control_loop()
+{
+  target = p_controller_.pump_controller(target_angle, system_angle, system_vel);
 }
 
 void print_loop()
@@ -85,14 +88,15 @@ void setup() {
   motor.controller = MotionControlType::torque;
   motor.foc_modulation = FOCModulationType::SpaceVectorPWM;
 
-  // init pos controller
+  // Example: Setting parameters for the Q axis
+  motor.PID_current_q.P = 5.0;      
+  motor.PID_current_q.I = 1000.0;   
+  motor.LPF_current_q.Tf = 0.005;   
 
-  // motor.PID_current_q.P = 0.05;
-  // motor.PID_current_q.I=  10;
-  // motor.PID_current_d.P= .05;
-  // motor.PID_current_d.I = 10;
-  // motor.LPF_current_q.Tf = 0.01; 
-  // motor.LPF_current_d.Tf = 0.01; 
+  // D axis parameters should usually match the Q axis
+  motor.PID_current_d.P = 5.0;
+  motor.PID_current_d.I = 1000.0;
+  motor.LPF_current_d.Tf = 0.005;
 
   // set current limit
   motor.current_limit = 3;
@@ -105,7 +109,12 @@ void setup() {
   SimpleFOCDebug::enable(&Serial);
 
   // initialize motor
+  motor.voltage_sensor_align = 8.0;
   motor.init();
+
+  // set offsets
+  motor.sensor_direction = Direction::CCW;
+  motor.zero_electric_angle = 2.0;
 
   // align sensor and start FOC
   if(!motor.initFOC()){
@@ -116,23 +125,39 @@ void setup() {
   motor.target = 0.0;
 
   // get trajectory to follow
-  std::copy(step_at_500ms.begin(), step_at_500ms.end(), std::back_inserter(trajectory));
+  // std::copy(step_at_500ms.begin(), step_at_500ms.end(), std::back_inserter(trajectory));
+  std::copy(trajectory_traj_11.begin(), trajectory_traj_11.end(), std::back_inserter(trajectory));
+
+  // enable ffwd
+  p_controller_.set_ffwd_control(true);
 
   // wait 1 second
   delay(1000);
 
-  // start position controller
+  // start command update loop
+  command_update_timer_.begin(
+    [](){
+      command_update_loop();
+    }, 10000);
+
+  // start position controller loop
   position_control_timer_.begin(
     [](){
-      trajectory_control_loop();
-    }, 100);
+      position_control_loop();
+    }, 1000);
 
   // start print loop
   print_timer_.begin(
     [](){
       print_loop();
-    }, 1000);
+    }, 10000);
 
 }
 
-void loop() {}
+void loop() { // main FOC algorithm function
+
+  motor.loopFOC();
+
+  motor.move(target);
+
+}
