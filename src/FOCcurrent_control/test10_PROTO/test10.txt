@@ -1,9 +1,0 @@
-trial1: just seeinig what comes out
-
-trial2: playing around
-
-trial3: commanded 0.1A, let it spin and near the end stopped with my hand. saw output current similar to commanded
-
-trial4: commanded 0.25A, held still inconsistantly
-
-trial5: command 0.25A, hold still whole time
