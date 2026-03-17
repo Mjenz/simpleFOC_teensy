@@ -17,8 +17,7 @@ StepDetector(int window_size, double theshold, double refractory_period = 0.2, i
 
 /// \brief Update the moving average filter
 /// \param acc - The new accelerations to add in to moving average window
-/// \return Boolean indicating if step has been detected
-bool filter_update(accelerations acc);
+void filter_update(accelerations acc);
 
 /// \brief Get the cadence or time between steps
 /// \return The candence in steps per second

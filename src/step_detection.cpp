@@ -18,7 +18,7 @@ StepDetector::StepDetector(int window_size, double threshold, double refractory_
   acc_buffer_.resize(window_size_);
 }
 
-bool StepDetector::filter_update(accelerations acc)
+void StepDetector::filter_update(accelerations acc)
 {
   // add the magnitude of the acc into the buffer
   acc_buffer_.at(head_) = mag(acc);
@@ -41,11 +41,10 @@ bool StepDetector::filter_update(accelerations acc)
   } else {
     // run step detection algorithm
     result_ = detect_steps();
-  }
+  }  
 
-  
-  return result_;
-  
+  // update cadence
+  update_cadence();
 }
 
 double StepDetector::get_cadence()

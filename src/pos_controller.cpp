@@ -37,7 +37,7 @@ double PositionController::pump_controller(double setpoint, double actual, float
     // calculate error
     err_ = (setpoint - actual);
 
-    if (gvty_fwd_enable_) {gvty_term_ = -std::sin(actual);}
+    if (gvty_fwd_enable_) {gvty_term_ = std::sin(actual);}
     if (Ki_ != 0.0) {err_int_ += err_;}
     if (Kd_ != 0.0) { err_der_ = -(shaft_vel);} 
     
