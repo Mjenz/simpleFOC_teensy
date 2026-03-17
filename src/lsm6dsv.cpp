@@ -15,7 +15,6 @@ void LSM6DSV_IMU::init()
   dev_ctx.read_reg  = platform_read;
   dev_ctx.handle    = NULL;
   
-  uint8_t whoami;
   lsm6dsv_device_id_get(&dev_ctx, &whoami);
   
   if (whoami != LSM6DSV_ID) {
@@ -38,17 +37,12 @@ void LSM6DSV_IMU::init()
       - FS: ±2 g
   */
   lsm6dsv_xl_full_scale_set(&dev_ctx, LSM6DSV_2g);
-  lsm6dsv_xl_data_rate_set(&dev_ctx, LSM6DSV_ODR_AT_60Hz);
+  lsm6dsv_xl_data_rate_set(&dev_ctx, LSM6DSV_ODR_HA01_AT_2000Hz);
 }
 
 accelerations LSM6DSV_IMU::get_acc()
 {
  lsm6dsv_acceleration_raw_get(&dev_ctx, accel_raw);
-
- accel_mg[0] = lsm6dsv_from_fs2_to_mg(accel_raw[0]) / 1000.0f;
- accel_mg[1] = lsm6dsv_from_fs2_to_mg(accel_raw[1]) / 1000.0f;
- accel_mg[2] = lsm6dsv_from_fs2_to_mg(accel_raw[2]) / 1000.0f;
-
- return {accel_mg[0], accel_mg[1], accel_mg[2]};
+ return {lsm6dsv_from_fs2_to_mg(accel_raw[0]) / 1000.0f, lsm6dsv_from_fs2_to_mg(accel_raw[1]) / 1000.0f, lsm6dsv_from_fs2_to_mg(accel_raw[2]) / 1000.0f};
 }
 

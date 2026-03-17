@@ -50,9 +50,10 @@ private:
     return 0;
   }
 
-  static stmdev_ctx_t dev_ctx;
-  static int16_t accel_raw[3];
-  static float accel_mg[3];
+  uint8_t whoami;
+  stmdev_ctx_t dev_ctx;
+  int16_t accel_raw[3];
+  // float accel_mg[3];
 };
 
 #endif
