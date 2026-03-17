@@ -30,6 +30,10 @@ private:
 /// \returns Boolean indicating if a step has been detected
 bool detect_steps();
 
+/// \brief Update the cadence using the times since last step
+/// \note Will reset cadence to zero if step is not detected within 2 seconds
+void update_cadence();
+
 /// \brief Calculate the magnitude of an acceleration signal
 double mag(accelerations acc);
 
@@ -64,6 +68,7 @@ double prev_mav_, curr_mav_, next_mav_;
 
 /// \brief The size of the mav_result_buffer_
 static constexpr int step_detect_buff_size_ = 3;
-
+/// \brief The period in seconds for which the cadence is set to 0 if it exceeds this time
+static constexpr double reset_period_ = 2.0;
 };
 #endif

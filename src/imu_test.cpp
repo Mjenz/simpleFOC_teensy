@@ -33,10 +33,6 @@ void print_loop()
 
   Serial.print(">cadence:");
   Serial.println(cadence);
-
-  Serial.print(">step:");
-  Serial.println(int(step));
-
 }
 void setup() 
 {

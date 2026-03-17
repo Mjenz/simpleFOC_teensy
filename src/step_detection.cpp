@@ -43,23 +43,7 @@ bool StepDetector::filter_update(accelerations acc)
     result_ = detect_steps();
   }
 
-  // update count_since_step accordinly
-  if (result_) {
-    // enforce refactory period for step detection
-    if (count_since_step_ > frequency_ * refractory_period_) {
-        cadence_ = double(frequency_) / double(count_since_step_);
-        count_since_step_ = 0;
-    } else {
-        // increment since we aren't counting this step
-        count_since_step_++;
-
-        // flip back the result since we aren't counting this step
-        result_ = false;
-    }
-  } else {
-    count_since_step_++;
-  }
-
+  
   return result_;
   
 }
@@ -82,6 +66,32 @@ bool StepDetector::detect_steps()
 
   return false;
 }
+
+void StepDetector::update_cadence()
+{
+  // check for timeout on cadence
+  if (count_since_step_> frequency_ * reset_period_) {
+    cadence_ = 0.0;
+  }
+  // update count_since_step accordinly
+  if (result_) {
+    // enforce refactory period for step detection
+    if (count_since_step_ > frequency_ * refractory_period_) {
+        cadence_ = double(frequency_) / double(count_since_step_);
+        count_since_step_ = 0;
+    } else {
+        // increment since we aren't counting this step
+        count_since_step_++;
+
+        // flip back the result since we aren't counting this step
+        result_ = false;
+    }
+  } else {
+    count_since_step_++;
+  }
+
+}
+
 
 double StepDetector::mag(accelerations acc)
 {
